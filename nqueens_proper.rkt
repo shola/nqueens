@@ -3,10 +3,10 @@
 #reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname nqueens_proper) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
 (require racket/list) ; gets list-ref, take, drop
 
-;; To run program: (prettify (queens BD1))
+;; To run program: (print-bd (queens BD0))
 
 ;; PROBLEM STATEMENT:
-;; The four queens problem consists of finding a way to place four chess queens on a 4 by 4 chess board while making sure that none of the queens attack each other. The four queens puzzle is one version of the more general n queens problem of placing n queens on an n by n board.
+;; The N-queens problem consists of finding a way to place N chess queens on a N by N chess board while making sure that none of the queens attack each other. 
 
 ;; ================
 ;; DATA DEFINITIONS
@@ -24,8 +24,8 @@
 
 ;; =========
 ;; CONSTANTS
-(define SIZE 8)
-(define _ false)
+(define SIZE 8)    ; can be adjusted to any Natural, however ROWS, COLS, and DIAGS8 
+(define _ false)   ;   must be altered
 (define Q true)
 (define MAX-POS (sub1 (* SIZE SIZE))) ; position of last cell in board
 
@@ -34,6 +34,56 @@
         _ _ _ _ _ _ _ _
         _ _ _ _ _ _ _ _
         _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _))
+
+(define BD0s
+  (list Q _ _ _ _ _ _ _
+        _ _ _ _ Q _ _ _
+        _ _ _ _ _ _ _ Q
+        _ _ _ _ _ Q _ _
+        _ _ Q _ _ _ _ _
+        _ _ _ _ _ _ Q _
+        _ Q _ _ _ _ _ _
+        _ _ _ Q _ _ _ _))
+
+(define BD1
+  (list _ Q _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _))
+
+(define BD2
+  (list _ _ Q _ _ _ _ _ 
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _))
+
+(define BD3
+  (list Q _ _ _ _ _ _ _ 
+        _ _ Q _ _ _ _ _
+        _ _ _ _ Q _ _ _
+        _ _ _ _ _ _ Q _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _))
+
+(define BD4
+  (list Q _ _ _ _ _ _ _ 
+        _ _ Q _ _ _ _ _
+        _ Q _ _ Q _ _ _
+        _ _ _ _ _ _ Q _
         _ _ _ _ _ _ _ _
         _ _ _ _ _ _ _ _
         _ _ _ _ _ _ _ _
@@ -101,19 +151,19 @@
 ;; FUNCTIONS
 
 ;; Board -> Board|False
-;; takes in a board and returns a solved board if possible; false otherwise
+;; takes in a board and returns the first solved board if possible; false otherwise
 ;; ASSUME all boards begin as valid
-;(check-expect (queens BD1) BD1s)
-;(check-expect (queens BD4) false)
-;(check-expect (queens BD2) BD2)
+(check-expect (queens BD3) false)
+(check-expect (queens BD0) BD0s)
 
 ;(define (queens bd) false) ;stub
 
 (define (queens bd)
-  (local [(define (solve-bd bd)         ; Board -> Board
-            (if (solved? bd)
-                bd
-                (solve-lobd (gen-boards bd))))
+  (local [(define all-solns (list))
+          
+          (define (solve-bd bd)         ; Board -> Board
+            (cond [(solved? bd) bd]
+                  [else (solve-lobd (gen-boards bd))]))
           
           (define (solve-lobd lobd)     ; (listof Board) -> Boolean
             (cond [(empty? lobd) false]
@@ -130,9 +180,8 @@
 ;; returns true if the board is a valid solution (with max num queens), 
 ;; false otherwise
 ;; ASSUME: only valid boards are passed to solve-bd
-;(check-expect (solved? BD1) false)
-;(check-expect (solved? BD4) false)
-;(check-expect (solved? BD2) true)
+(check-expect (solved? BD0) false)
+(check-expect (solved? BD0s) true)
 
 ;(define (solved? bd) false) ;stub
 (define (solved? bd)
@@ -141,9 +190,8 @@
 
 ;; Board -> Boolean
 ;; returns true if there are SIZE number of queens on board
-;(check-expect (n-queens? BD1) false)
-;(check-expect (n-queens? BD2) true)
-;(check-expect (n-queens? BD4) false)
+(check-expect (n-queens? BD0s) true)
+(check-expect (n-queens? BD3) false)
 
 ;(define (n-queens? bd) false) ;stub
 (define (n-queens? bd)
@@ -152,8 +200,8 @@
 
 ;; Board -> (listof Pos)
 ;; returns the pos of all queens on board
-;(check-expect (queens-pos BD1) empty)
-;(check-expect (queens-pos BD2) (list 2 4 11 13))
+(check-expect (queens-pos BD0) empty)
+(check-expect (queens-pos BD3) (list 0 10 20 30))
 
 (define (queens-pos bd)
   (local [(define (add-qs b p)        ; Board Pos -> (listof Pos)
@@ -167,21 +215,25 @@
 ;; takes current board, and generates a list of valid boards with a queen 
 ;; in each cell after the last queen's cell
 ;; ASSUME: number of queens on parameter bd will be less than size
-;(check-expect (gen-boards BD4) empty)
-;(check-expect (gen-boards (list Q _ _ _
-;                                _ _ _ _
-;                                _ _ _ _
-;                                _ _ _ Q))
-;              empty)
-;(check-expect (gen-boards (list _ _ _ _
-;                                _ _ _ _
-;                                _ Q _ _
-;                                _ _ _ _)) 
-;              (list 
-;               (list _ _ _ _
-;                     _ _ _ _
-;                     _ Q _ _
-;                     _ _ _ Q)))
+(check-expect (gen-boards BD0s) empty)
+(check-expect (gen-boards (list Q _ _ _ _ _ _ _ 
+                                _ _ Q _ _ _ _ _
+                                _ _ _ _ Q _ _ _
+                                _ _ _ _ _ _ Q _
+                                _ Q _ _ _ _ _ _
+                                _ _ _ Q _ _ _ _
+                                _ _ _ _ _ _ _ _
+                                _ _ _ _ _ _ _ _))
+              (list
+               (list Q _ _ _ _ _ _ _ 
+                     _ _ Q _ _ _ _ _
+                     _ _ _ _ Q _ _ _
+                     _ _ _ _ _ _ Q _
+                     _ Q _ _ _ _ _ _
+                     _ _ _ Q _ _ _ _
+                     _ _ _ _ _ Q _ _
+                     _ _ _ _ _ _ _ _)))
+
 
 ;(define (gen-boards bd) empty) ;stub
 (define (gen-boards bd)
@@ -196,10 +248,10 @@
 ;; Board -> Boolean
 ;; returns true if no queens attack each other
 ;; ASSUME: that there are SIZE or less queens
-;(check-expect (valid-board? BD2) true)
-;(check-expect (valid-board? BD1) true)
-;(check-expect (valid-board? BD3) false)
-;(check-expect (valid-board? BD6) false)
+(check-expect (valid-board? BD0) true)
+(check-expect (valid-board? BD0s) true)
+(check-expect (valid-board? BD3) true)
+(check-expect (valid-board? BD4) false)
 ;(define (valid-board? bd) false) ;stub
 
 (define (valid-board? bd) 
@@ -266,17 +318,17 @@
 ;; returns the position right after the queen closest to the end of the board
 ;; (AKA the insertion point)
 ;; NOTE: returns 0 if there is an empty board
-;(check-expect (ins-pt BD1) 0)
-;(check-expect (ins-pt (list _ _ _ _
-;                            _ _ Q _
-;                            _ _ _ _
-;                            _ _ _ _)) 
-;              7)
-;(check-expect (ins-pt (list _ _ _ _
-;                            _ _ _ _
-;                            _ _ _ _
-;                            _ _ Q _)) 
-;              15)
+(check-expect (ins-pt BD0) 0)
+(check-expect (ins-pt (list _ _ _ _
+                            _ _ Q _
+                            _ _ _ _
+                            _ _ _ _)) 
+              7)
+(check-expect (ins-pt (list _ _ _ _
+                            _ _ _ _
+                            _ _ _ _
+                            _ _ Q _)) 
+              15)
 
 ;(define (ins-pt bd) 0) ;stub
 (define (ins-pt bd)
@@ -315,8 +367,8 @@
 
 ;; Board Pos -> Val or false
 ;; Produce value at given position on board.
-;(check-expect (read-square BD2 (r-c->pos 0 2)) true)
-;(check-expect (read-square BD3 (r-c->pos 2 2)) false)
+(check-expect (read-square BD4 (r-c->pos 1 2)) true)
+(check-expect (read-square BD0 (r-c->pos 6 3)) false)
 
 (define (read-square bd p)
   (list-ref bd p))  
@@ -339,10 +391,12 @@
           
           (define (print-ln pretty-ln)  ;; Board -> Board
             (map print-q pretty-ln))]
-          
+    
     (map print-ln pretty-bd)))
 
 
 ;;==============
 ;;Example Run:
 (print-bd (queens BD0))
+(print-bd (queens BD1))
+(print-bd (queens BD2))
